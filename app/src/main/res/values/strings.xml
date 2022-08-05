@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Clock Widgets</string>
+
+    <string name="loading">Loading…</string>
+    <string name="loading_short" tools:ignore="TypographyEllipsis" translatable="false">...</string>
+
+    <string name="preview_date">Mon, February 3</string>
+    <string name="preview_hour">12</string>
+    <string name="preview_minute">34</string>
+
+    <string name="stacked_digital_label">Stacked Digital Clock</string>
+    <string name="stacked_digital_description" />
+</resources>

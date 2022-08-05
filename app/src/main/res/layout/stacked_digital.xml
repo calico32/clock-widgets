@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical"
+    android:id="@+id/widgetRoot">
+    <TextView
+        android:id="@+id/dateText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingTop="10dp"
+        android:fontFamily="sans-serif"
+        android:shadowColor="#3B000000"
+        android:shadowRadius="8"
+        android:text="@string/loading"
+        android:textColor="@color/material_dynamic_primary95"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/hourText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="-10dp"
+        android:layout_marginBottom="-40dp"
+        android:fontFamily="sans-serif-light"
+        android:shadowColor="#3B000000"
+        android:shadowRadius="8"
+        android:text="@string/loading_short"
+        android:textColor="@color/material_dynamic_primary95"
+        android:textSize="130sp" />
+
+    <TextView
+        android:id="@+id/minuteText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:fontFamily="sans-serif-light"
+        android:lineHeight="100dp"
+        android:shadowColor="#3B000000"
+        android:shadowRadius="8"
+        android:text="@string/loading_short"
+        android:textColor="@color/material_dynamic_primary90"
+        android:textSize="130sp" />
+</LinearLayout>
