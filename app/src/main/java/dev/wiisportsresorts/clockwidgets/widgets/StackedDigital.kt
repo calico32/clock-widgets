@@ -15,6 +15,8 @@ class StackedDigital : ClockWidget() {
         appWidgetId: Int,
         cal: Calendar
     ) {
+        log("updateWidget")
+
         val use24Hour = DateFormat.is24HourFormat(context)
 
         // TODO: locale-aware date formatting
@@ -39,8 +41,11 @@ class StackedDigital : ClockWidget() {
             setTextViewText(R.id.dateText, dateString)
             setTextViewText(R.id.hourText, hourString)
             setTextViewText(R.id.minuteText, minuteString)
-            setOnClickPendingIntent(R.id.widgetRoot, showAlarmsIntent(context))
+            setOnClickPendingIntent(R.id.widgetRoot, makeShowAlarmsIntent(context))
         }
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 }
+
+
+

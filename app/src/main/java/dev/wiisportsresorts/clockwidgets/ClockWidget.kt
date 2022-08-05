@@ -1,5 +1,6 @@
 package dev.wiisportsresorts.clockwidgets
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -12,8 +13,8 @@ import android.util.Log
 import java.util.*
 
 abstract class ClockWidget : AppWidgetProvider() {
-    private fun log(message: String) {
-        Log.v(ClockWidget::class.java.simpleName, message)
+    protected fun log(message: String) {
+        Log.v(this::class.java.simpleName, message)
     }
 
     companion object {
@@ -34,16 +35,30 @@ abstract class ClockWidget : AppWidgetProvider() {
         PendingIntent.getBroadcast(
             context,
             0,
-            Intent(CLOCK_TICK).setClass(context, ClockWidget::class.java),
+            Intent(CLOCK_TICK).setClass(context, this::class.java),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
+
+    // Android Studio incorrectly reporting that SET_EXACT_ALARM is needed,
+    // while in fact we are using USE_EXACT_ALARM.
+    @SuppressLint("MissingPermission")
+    private fun queueNextTick(context: Context): PendingIntent {
+        log("queueNextTick ${System.currentTimeMillis()} -> ${nextTickTime()}")
+        val manager = getAlarmManager(context)
+        if (nextTick != null) {
+            manager.cancel(nextTick)
+        }
+        nextTick = makeTickIntent(context)
+        manager.setExact(AlarmManager.RTC, nextTickTime(), nextTick)
+        log(nextTick.toString())
+        return nextTick!!
+    }
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
 
         updateAllClocks(context)
-        nextTick = makeTickIntent(context)
-        getAlarmManager(context).setExact(AlarmManager.RTC, nextTickTime(), nextTick)
+        queueNextTick(context)
     }
 
     override fun onDisabled(context: Context) {
@@ -62,13 +77,7 @@ abstract class ClockWidget : AppWidgetProvider() {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
 
         updateAllClocks(context)
-
-        val manager = getAlarmManager(context)
-        if (nextTick != null) {
-            manager.cancel(nextTick)
-        }
-        nextTick = makeTickIntent(context)
-        manager.setExact(AlarmManager.RTC, nextTickTime(), nextTick)
+        queueNextTick(context)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -76,21 +85,20 @@ abstract class ClockWidget : AppWidgetProvider() {
 
         val action = intent.action
         if (action == null || action.startsWith("android.appwidget.action.APPWIDGET_")) {
-            // handled by superclass
+            // handled by this::class
             return
         }
 
-        val manager = getAlarmManager(context)
+        log("onReceive $action")
+
         when (action) {
             Intent.ACTION_BOOT_COMPLETED -> {
                 updateAllClocks(context)
-                nextTick = makeTickIntent(context)
-                manager.setExact(AlarmManager.RTC, nextTickTime(), nextTick)
+                queueNextTick(context)
             }
             CLOCK_TICK -> {
                 updateAllClocks(context)
-                nextTick = makeTickIntent(context)
-                manager.setExact(AlarmManager.RTC, nextTickTime(), nextTick)
+                queueNextTick(context)
             }
             CLOCK_CLICK -> {
                 val alarmIntent = Intent(AlarmClock.ACTION_SHOW_ALARMS)
@@ -104,17 +112,18 @@ abstract class ClockWidget : AppWidgetProvider() {
     }
 
     private fun updateAllClocks(context: Context) {
+        log("updateAllClocks")
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val thisAppWidget = ComponentName(context.packageName, javaClass.name)
         val ids = appWidgetManager.getAppWidgetIds(thisAppWidget)
         ids.forEach { updateWidget(context, appWidgetManager, it, Calendar.getInstance()) }
     }
 
-    protected fun showAlarmsIntent(context: Context): PendingIntent {
+    protected fun makeShowAlarmsIntent(context: Context): PendingIntent {
         return PendingIntent.getBroadcast(
             context,
             0,
-            Intent(CLOCK_CLICK).setClass(context, ClockWidget::class.java),
+            Intent(CLOCK_CLICK).setClass(context, this::class.java),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
